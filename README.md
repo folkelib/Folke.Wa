@@ -36,7 +36,7 @@ You can now declare controllers as classes that extends the Controller or ApiCon
 
 The route to a method is declared using attributes that uses a subset of Web API attribute routing.
 
-Example of a Controller (Views does not support any rendering engine, you must implements the IView interface):
+Example of a Controller (Views don't support any rendering engine, you must implement the IView interface):
 
 ```C#
 [RoutePrefix("")]
