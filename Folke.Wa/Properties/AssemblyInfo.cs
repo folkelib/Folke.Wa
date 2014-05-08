@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // l'ensemble d'attributs suivant. Changez les valeurs de ces attributs pour modifier les informations
 // associées à un assembly.
 [assembly: AssemblyTitle("Folke.Wa")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("A simple web API and MVC engine for Owin")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Folke")]
 [assembly: AssemblyProduct("Folke.Wa")]
@@ -33,4 +33,4 @@ using System.Runtime.InteropServices;
 // en utilisant '*', comme indiqué ci-dessous :
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("0.1.*")]
-[assembly: AssemblyFileVersion("0.1.*")]
+[assembly: AssemblyFileVersion("0.1.0.0")]
