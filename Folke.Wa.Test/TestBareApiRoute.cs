@@ -37,7 +37,6 @@ namespace Folke.Wa.Test
             var route = new BareApiRoute("test/{text}", textMethod, configMock.Object);
 
             Assert.IsTrue(route.Match(new[] { "test", "toto" }), "route match");
-            Assert.IsTrue(false);
         }
 
         [Test]
