@@ -1,10 +1,10 @@
 ﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NUnit.Framework;
 
 namespace Folke.Wa.Test
 {
-    [TestClass]
+    [TestFixture]
     public class TestBareApiRoute
     {
         private Type testControllerType;
@@ -18,28 +18,29 @@ namespace Folke.Wa.Test
             }
         }
 
-        [TestInitialize]
+        [SetUp]
         public void Initialize()
         {
             configMock = new Mock<IWaConfig>();
             testControllerType = typeof(TestController);
         }
 
-        [TestCleanup]
+        [TearDown]
         public void Cleanup()
         {
         }
 
-        [TestMethod]
+        [Test]
         public void TestTextMethodMatchSuccess()
         {
             var textMethod = testControllerType.GetMethod("Text");
             var route = new BareApiRoute("test/{text}", textMethod, configMock.Object);
 
             Assert.IsTrue(route.Match(new[] { "test", "toto" }), "route match");
+            Assert.IsTrue(false);
         }
 
-        [TestMethod]
+        [Test]
         public void TestTextMethodMatchFail()
         {
             var textMethod = testControllerType.GetMethod("Text");
