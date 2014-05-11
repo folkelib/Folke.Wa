@@ -10,7 +10,8 @@ namespace Folke.Wa
     {
         public Dictionary<string, List<string>> Messages { get; set; }
 
-        public bool IsValid {get;set;}
+        public bool IsValid { get; set; }
+        public object Model { get; set; }
         
         public ModelState()
         {
