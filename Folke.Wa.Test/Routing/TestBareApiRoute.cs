@@ -1,8 +1,9 @@
 ﻿using System;
 using Moq;
 using NUnit.Framework;
+using Folke.Wa.Routing;
 
-namespace Folke.Wa.Test
+namespace Folke.Wa.Test.Routing
 {
     [TestFixture]
     public class TestBareApiRoute

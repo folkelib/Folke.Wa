@@ -25,6 +25,7 @@ namespace Folke.Wa
         public IOwinRequest Request { get { return request; } }
         public IOwinResponse Response { get { return response; } }
         public IWaConfig Config { get { return config; } }
+        public object Model { get; set; }
 
         private Dictionary<string, object> session;
 

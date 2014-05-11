@@ -8,10 +8,11 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using SimpleInjector;
-using SimpleInjector.Extensions.LifetimeScoping;
+using SimpleInjector.Extensions.ExecutionContextScoping;
 using System.IO;
 using Newtonsoft.Json.Serialization;
 using System.Globalization;
+using Folke.Wa.Routing;
 
 namespace Folke.Wa
 {
@@ -115,20 +116,12 @@ namespace Folke.Wa
 
         public async Task Run(IOwinContext context, PathMatch match)
         {
-            //using ()
-            var lifeTimeScope = Container.BeginLifetimeScope();
-            try
+            using (var executionContextScope = Container.BeginExecutionContextScope())
             {
-                
                 var currentContext = Container.GetInstance<ICurrentContext>();
                 //TODO CurrentContextFactory ?
                 currentContext.Setup(context, this);
-                await match.path.Invoke(match.pathParts, context);
-                lifeTimeScope.Dispose();
-            }
-            finally
-            {
-                lifeTimeScope.Dispose();
+                await match.path.Invoke(match.pathParts, currentContext);
             }
         }
 

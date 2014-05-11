@@ -20,7 +20,7 @@ namespace Folke.Wa
             get
             {
                 if (modelState == null)
-                    modelState = new ModelState();
+                    modelState = new ModelState(Context.Model);
                 return modelState;
             }
         }

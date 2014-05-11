@@ -43,6 +43,7 @@
       <HintPath>..\packages\NUnit.2.6.3\lib\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
   </ItemGroup>
   <Choose>
     <When Condition="('$(VisualStudioVersion)' == '10.0' or '$(VisualStudioVersion)' == '') and '$(TargetFrameworkVersion)' == 'v3.5'">
@@ -53,8 +54,9 @@
     <Otherwise />
   </Choose>
   <ItemGroup>
-    <Compile Include="TestBareApiRoute.cs" />
+    <Compile Include="Routing\TestBareApiRoute.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TestModelState.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Folke.Wa\Folke.Wa.csproj">

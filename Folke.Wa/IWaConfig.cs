@@ -1,4 +1,5 @@
-﻿using Microsoft.Owin;
+﻿using Folke.Wa.Routing;
+using Microsoft.Owin;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using SimpleInjector;
@@ -20,6 +21,10 @@ namespace Folke.Wa
 
         AbstractRoute GetRoute(string route);
         IView GetView(string name);
+        /// <summary>
+        /// Must be called one time to create the configuration
+        /// </summary>
+        /// <param name="container">The SimpleInjector container</param>
         void Configure(Container container);
         bool SendStaticContent(IOwinContext context);
         void AddStaticDirectory(string name);

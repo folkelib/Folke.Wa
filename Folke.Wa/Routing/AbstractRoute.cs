@@ -7,7 +7,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Folke.Wa
+namespace Folke.Wa.Routing
 {
     public abstract class AbstractRoute
     {
@@ -214,7 +214,7 @@ namespace Folke.Wa
             return true;
         }
 
-        public abstract Task Invoke(string[] path, IOwinContext context);
+        public abstract Task Invoke(string[] path, ICurrentContext context);
 
         protected int NumberOfParameters
         {
@@ -242,7 +242,7 @@ namespace Folke.Wa
             }
         }
 
-        protected void FillJsonBody(IOwinContext context, object[] parameters)
+        protected void FillJsonBody(ICurrentContext context, object[] parameters)
         {
             var contentLength = int.Parse(context.Request.Headers["content-length"]);
             var bodyContent = new byte[contentLength];
@@ -251,6 +251,7 @@ namespace Folke.Wa
             try
             {
                 object result = JsonConvert.DeserializeObject(text, body.ParameterType);
+                context.Model = result;
                 parameters[body.Position] = result;
             }
             catch(Exception e)
@@ -259,7 +260,7 @@ namespace Folke.Wa
             }
         }
 
-        protected void FillQueryParameters(IOwinContext context, object[] parameters)
+        protected void FillQueryParameters(ICurrentContext context, object[] parameters)
         {
             if (query != null)
             {
@@ -272,7 +273,7 @@ namespace Folke.Wa
             }
         }
 
-        protected object Invoke(IOwinContext context, object[] parameters)
+        protected object Invoke(ICurrentContext context, object[] parameters)
         {
             var obj = config.Container.GetInstance(method.DeclaringType);
             return method.Invoke(obj, parameters);
@@ -287,100 +288,6 @@ namespace Folke.Wa
                 part.Append(ret, parameters);
             }
             return ret.ToString();
-        }
-    }
-
-    public class BareApiRoute : AbstractRoute
-    {
-        public BareApiRoute(string pattern, MethodInfo methodInfo, IWaConfig config)
-            : base(pattern, methodInfo, config)
-        {
-
-        }
-
-        public override Task Invoke(string[] path, IOwinContext context)
-        {
-            var parameters = new object[NumberOfParameters];
-            FillPathParameters(path, parameters);
-
-            if (HasBody)
-                FillJsonBody(context, parameters);
-            FillQueryParameters(context, parameters);
-
-            try
-            {
-                var ret = Invoke(context, parameters);
-                context.Response.ContentType = "application/json";
-                //if (ret != null)
-                    context.Response.Write(JsonConvert.SerializeObject(ret, config.JsonSerializerSettings));
-            }
-            catch(Exception e)
-            {
-                context.Response.StatusCode = 500;
-                context.Response.Write(JsonConvert.SerializeObject(new { message = e.Message, details = e.ToString() }, config.JsonSerializerSettings));
-            }
-            return Task.Delay(0);
-        }
-    }
-
-    public class HttpActionResultApiRoute : AbstractRoute
-    {
-        public HttpActionResultApiRoute(string pattern, MethodInfo methodInfo, WaConfig config)
-            : base(pattern, methodInfo, config)
-        {
-
-        }
-
-        public override Task Invoke(string[] path, IOwinContext context)
-        {
-            var parameters = new object[NumberOfParameters];
-            FillPathParameters(path, parameters);
-
-            if (HasBody)
-                FillJsonBody(context, parameters);
-            FillQueryParameters(context, parameters);
-
-            try
-            {
-                Invoke(context, parameters);
-            }
-            catch(Exception e)
-            {
-                context.Response.StatusCode = 500;
-                context.Response.Write(JsonConvert.SerializeObject(new { message = e.Message, details = e.ToString() }, config.JsonSerializerSettings));
-            }
-            return Task.Delay(0);
-        }
-    }
-
-    public class ActionResultRoute : AbstractRoute
-    {
-        public ActionResultRoute(string pattern, MethodInfo methodInfo, WaConfig config)
-            : base(pattern, methodInfo, config)
-        {
-
-        }
-
-        public override Task Invoke(string[] path, IOwinContext context)
-        {
-            var parameters = new object[NumberOfParameters];
-            FillPathParameters(path, parameters);
-
-           /* if (HasBody)
-                await FillJsonBody(context, parameters);*/
-            FillQueryParameters(context, parameters);
-
-            try
-            {
-                var ret = Invoke(context, parameters);
-                JsonConvert.SerializeObject(ret, config.JsonSerializerSettings);
-            }
-            catch (Exception e)
-            {
-                context.Response.StatusCode = 500;
-                context.Response.Write(JsonConvert.SerializeObject(new { message = e.Message, details = e.ToString() }, config.JsonSerializerSettings));
-            }
-            return Task.Delay(0);
         }
     }
 }

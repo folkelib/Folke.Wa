@@ -14,5 +14,6 @@ namespace Folke.Wa
         IWaConfig Config { get; }
         Dictionary<string, object> Session { get; }
         void Setup(IOwinContext context, IWaConfig config);
+        object Model { get; set; }
     }
 }
