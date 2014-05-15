@@ -9,7 +9,7 @@
     <projectUrl>https://github.com/folkelib/wa</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
-    <releaseNotes>Initial package.</releaseNotes>
+    <releaseNotes>Model State validation.</releaseNotes>
     <copyright>Copyright 2014</copyright>
     <tags>owin web api</tags>
   </metadata>

@@ -34,9 +34,22 @@ namespace Folke.Wa
             get
             {
                 if (session == null)
-                    session = Config.GetSession(context);
+                    session = Config.GetSession(this);
                 return session;
             }
+        }
+
+        public void SetCookie(string key, string value, CookieOptions options)
+        {
+            var text = string.Format("{0}={1}", key, value);
+            var path = options.Path ?? "/";
+            text += "; Path=" + path;
+            if (options.Expires != null)
+                text += "; Expires=\"" + options.Expires.Value.ToString("R") + "\"";
+            if (options.Domain != null)
+                text += "; Domain=" + options.Domain;
+
+            response.Headers.AppendValues("Set-Cookie", text);
         }
     }
 }

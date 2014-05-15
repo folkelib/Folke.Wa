@@ -30,6 +30,6 @@ namespace Folke.Wa
         void AddStaticDirectory(string name);
         JsonSerializerSettings JsonSerializerSettings { get; set; }
 
-        Dictionary<string, object> GetSession(IOwinContext context);
+        Dictionary<string, object> GetSession(ICurrentContext context);
     }
 }

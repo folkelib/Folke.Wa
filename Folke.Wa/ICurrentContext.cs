@@ -15,5 +15,12 @@ namespace Folke.Wa
         Dictionary<string, object> Session { get; }
         void Setup(IOwinContext context, IWaConfig config);
         object Model { get; set; }
+        /// <summary>
+        /// Used as a replacement of Response.Cookies, which is buggy in Microsoft.Owin.Host.HttpListener (as of now)
+        /// </summary>
+        /// <param name="key">The cookie name</param>
+        /// <param name="value">Its value</param>
+        /// <param name="options">Options (only path and expires are implemented)</param>
+        void SetCookie(string key, string value, CookieOptions options);
     }
 }

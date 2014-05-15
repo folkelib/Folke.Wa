@@ -237,7 +237,7 @@ namespace Folke.Wa
 
         private IDictionary<string, Session> sessions = new Dictionary<string, Session>();
 
-        public Dictionary<string, object> GetSession(IOwinContext context)
+        public Dictionary<string, object> GetSession(ICurrentContext context)
         {
             var sessionId = context.Request.Cookies["session"];
             Session session;
@@ -269,9 +269,10 @@ namespace Folke.Wa
                 }
             }
             
+            context.SetCookie("session", sessionId, new CookieOptions { Expires = expires });
+            
             session = sessions[sessionId];
             session.expires = expires;
-            context.Response.Cookies.Append("session", sessionId, new CookieOptions { Expires = expires });
             return session.content;
         }
     }
