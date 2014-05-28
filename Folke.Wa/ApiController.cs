@@ -32,21 +32,21 @@ namespace Folke.Wa
 
         /*public IHttpActionResult Ok(object model)
         {
-            Context.Response.ContentType = "application/json";
+            Context.Response.ContentType = "application/json; charset=utf-8";
             Context.Response.Write(JsonConvert.SerializeObject(model, Config.JsonSerializerSettings));
             return null;
         }*/
 
         public IActionResult<T> Ok<T>(T model)
         {
-            Context.Response.ContentType = "application/json";
+            Context.Response.ContentType = "application/json; charset=utf-8";
             Context.Response.Write(JsonConvert.SerializeObject(model, Config.JsonSerializerSettings));
             return null;
         }
 
         public IHttpActionResult Ok()
         {
-            Context.Response.ContentType = "application/json";
+            Context.Response.ContentType = "application/json; charset=utf-8";
             Context.Response.Write("null");
             return null;
         }
@@ -54,7 +54,7 @@ namespace Folke.Wa
         public IHttpActionResult Created(Uri uri, object model)
         {
             Context.Response.StatusCode = 201;
-            Context.Response.ContentType = "application/json";
+            Context.Response.ContentType = "application/json; charset=utf-8";
             Context.Response.Headers["Location"] = uri.AbsolutePath;
             Context.Response.Write(JsonConvert.SerializeObject(model, Config.JsonSerializerSettings));
             return null;
@@ -63,7 +63,7 @@ namespace Folke.Wa
         protected IActionResult<T> Created<T>(string routeName, int id, T content)
         {
             Context.Response.StatusCode = 201;
-            Context.Response.ContentType = "application/json";
+            Context.Response.ContentType = "application/json; charset=utf-8";
             Context.Response.Headers["Location"] = new Uri(Link(routeName, new {id = id})).AbsolutePath;
             Context.Response.Write(JsonConvert.SerializeObject(content, Config.JsonSerializerSettings));
             return null;
@@ -86,7 +86,7 @@ namespace Folke.Wa
         public IActionResult<T> BadRequest<T>(ModelState modelState)
         {
             Context.Response.StatusCode = 400;
-            Context.Response.ContentType = "application/json";
+            Context.Response.ContentType = "application/json; charset=utf-8";
             Context.Response.Write(JsonConvert.SerializeObject(new { modelState = modelState.Messages }, Config.JsonSerializerSettings));
             return null;
         }
@@ -94,7 +94,7 @@ namespace Folke.Wa
         public IHttpActionResult BadRequest(ModelState modelState)
         {
             Context.Response.StatusCode = 400;
-            Context.Response.ContentType = "application/json";
+            Context.Response.ContentType = "application/json; charset=utf-8";
             Context.Response.Write(JsonConvert.SerializeObject(new { modelState = modelState.Messages }, Config.JsonSerializerSettings));
             return null;
         }
@@ -114,7 +114,7 @@ namespace Folke.Wa
         public IActionResult<T> BadRequest<T>(string message)
         {
             Context.Response.StatusCode = 400;
-            Context.Response.ContentType = "application/json";
+            Context.Response.ContentType = "application/json; charset=utf-8";
             Context.Response.Write(JsonConvert.SerializeObject(new { message = message }, Config.JsonSerializerSettings));
             return null;
         }
@@ -122,7 +122,7 @@ namespace Folke.Wa
         public IHttpActionResult BadRequest(string message)
         {
             Context.Response.StatusCode = 400;
-            Context.Response.ContentType = "application/json";
+            Context.Response.ContentType = "application/json; charset=utf-8";
             Context.Response.Write(JsonConvert.SerializeObject(new { message = message }, Config.JsonSerializerSettings));
             return null;
         }

@@ -13,6 +13,7 @@ namespace Folke.Wa.Routing
     {
         private class Part
         {
+            public object defaultValue;
             public string pattern;
             public Type type;
             public int order;
@@ -27,9 +28,42 @@ namespace Folke.Wa.Routing
             {
             }
 
+            public virtual void SetDefault(object[] parameters)
+            {
+                parameters[order] = defaultValue;
+            }
+
             public virtual void Append(StringBuilder builder, object parameters)
             {
                 builder.Append(pattern);
+            }
+        }
+
+        private class BoolPart : Part
+        {
+            public BoolPart()
+            {
+                type = typeof(bool);
+            }
+
+            public override bool Match(string part)
+            {
+                bool result;
+                if (!bool.TryParse(part, out result))
+                    return false;
+                return true;
+            }
+
+            public override void Parse(string part, object[] parameters)
+            {
+                parameters[order] = bool.Parse(part);
+            }
+
+            public override void Append(StringBuilder builder, object parameters)
+            {
+                var type = parameters.GetType();
+                var value = type.GetProperty(pattern).GetValue(parameters);
+                builder.Append((bool)value);
             }
         }
 
@@ -186,8 +220,16 @@ namespace Folke.Wa.Routing
                     query[parameter.Name] = new LongPart { order = parameter.Position };
                 else if (parameter.ParameterType == typeof(string))
                     query[parameter.Name] = new StringPart { order = parameter.Position };
+                else if (parameter.ParameterType == typeof(bool))
+                    query[parameter.Name] = new BoolPart { order = parameter.Position };
                 else
                     throw new Exception("Parameter type " + parameter.ParameterType + " unsupported");
+
+                if (parameter.HasDefaultValue)
+                {
+                    query[parameter.Name].optional = true;
+                    query[parameter.Name].defaultValue = parameter.DefaultValue;
+                }
             }
 
             var unmappedParameter = method.GetParameters().FirstOrDefault(p => p.GetCustomAttribute<FromBodyAttribute>() == null && p.GetCustomAttribute<FromUriAttribute>() == null
@@ -269,6 +311,8 @@ namespace Folke.Wa.Routing
                     var value = context.Request.Query[parameter.Key];
                     if (value != null)
                         parameter.Value.Parse(value, parameters);
+                    else if (parameter.Value.optional)
+                        parameter.Value.SetDefault(parameters);
                 }
             }
         }

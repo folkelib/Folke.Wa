@@ -45,7 +45,7 @@ namespace Folke.Wa
             var path = options.Path ?? "/";
             text += "; Path=" + path;
             if (options.Expires != null)
-                text += "; Expires=\"" + options.Expires.Value.ToString("R") + "\"";
+                text += "; Expires=" + options.Expires.Value.ToString("R").Replace(',',' ');
             if (options.Domain != null)
                 text += "; Domain=" + options.Domain;
 

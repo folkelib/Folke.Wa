@@ -31,7 +31,7 @@ namespace Folke.Wa.Routing
             try
             {
                 var ret = Invoke(context, parameters);
-                context.Response.ContentType = "application/json";
+                context.Response.ContentType = "application/json; charset=utf-8";
                 //if (ret != null)
                 context.Response.Write(JsonConvert.SerializeObject(ret, config.JsonSerializerSettings));
             }

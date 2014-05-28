@@ -29,22 +29,29 @@ namespace Folke.Wa
             }
         }
 
-        public ActionResult View(string viewName, string controller, object model = null)
+        public ActionResult View(IView view)
+        {
+            Context.Response.ContentType = "text/html; charset=utf-8";
+            Context.Response.Write(view.Render(Context));
+            return null;
+        }
+
+        public ActionResult View(string viewName, string controller)
         {
            /* var file = System.IO.File.ReadAllText("Views/" +  controller + "/" + view + ".cshtml");
             file = Regex.Replace(file, @"@model\s+[\w\.]+\s*", "");*/
             var view = Context.Config.GetView(viewName);
             Context.Response.ContentType = "text/html; charset=utf-8";
-            Context.Response.Write(view.Render(Context, model));
+            Context.Response.Write(view.Render(Context));
             return null;
         }
 
-        public ActionResult View(string view, object model = null)
+        public ActionResult View(string view)
         {
             var name = this.GetType().Name;
             var end = name.IndexOf("Controller");
             name = name.Substring(0, end);
-            return View(view, name, model);
+            return View(view, name);
         }
 
         public ActionResult Json(object value)

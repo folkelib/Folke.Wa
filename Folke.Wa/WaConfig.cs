@@ -84,7 +84,9 @@ namespace Folke.Wa
                 var suffix = name.IndexOf("View");
                 if (suffix > 0)
                     name = name.Substring(0, suffix);
-                views.Add(name, (IView)c.GetConstructor(Type.EmptyTypes).Invoke(null));
+                var constructor = c.GetConstructor(Type.EmptyTypes);
+                if (constructor != null)
+                    views.Add(name, (IView) constructor.Invoke(null));
             }
         }
 

@@ -8,6 +8,6 @@ namespace Folke.Wa
 {
     public interface IView
     {
-        string Render(ICurrentContext context, object model);
+        string Render(ICurrentContext context);
     }
 }
