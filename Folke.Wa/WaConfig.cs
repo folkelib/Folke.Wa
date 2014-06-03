@@ -152,6 +152,9 @@ namespace Folke.Wa
         public bool SendStaticContent(IOwinContext context)
         {
             var path = context.Request.Path.Value;
+			if (path.IndexOf("..") >= 0)
+				return false;
+				
             if (path[0] == '/')
                 path = path.Substring(1);
             var slash = path.IndexOf('/');
