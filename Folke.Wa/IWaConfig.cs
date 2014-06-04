@@ -6,6 +6,7 @@ using SimpleInjector;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -25,7 +26,7 @@ namespace Folke.Wa
         /// Must be called one time to create the configuration
         /// </summary>
         /// <param name="container">The SimpleInjector container</param>
-        void Configure(Container container);
+        void Configure(Container container, params Assembly[] assemblies);
         bool SendStaticContent(IOwinContext context);
         void AddStaticDirectory(string name);
         JsonSerializerSettings JsonSerializerSettings { get; set; }

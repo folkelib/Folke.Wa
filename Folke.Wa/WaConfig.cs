@@ -32,10 +32,18 @@ namespace Folke.Wa
         {
         }
 
-        public void Configure(Container container)
+        public void Configure(Container container, params Assembly[] assemblies)
         {
             Container = container;
-            foreach (var c in Assembly.GetEntryAssembly().DefinedTypes.Where(t => t.IsClass && !t.IsAbstract && typeof(IController).IsAssignableFrom(t)))
+            if (!assemblies.Any())
+                LoadAssembly(Assembly.GetEntryAssembly());
+            else foreach (var assembly in assemblies)
+                    LoadAssembly(assembly);
+        }
+
+        private void LoadAssembly(Assembly assembly)
+        {
+            foreach (var c in assembly.DefinedTypes.Where(t => t.IsClass && !t.IsAbstract && typeof(IController).IsAssignableFrom(t)))
             {
                 var prefix = c.GetCustomAttribute<RoutePrefixAttribute>();
                 if (prefix == null)
@@ -78,7 +86,7 @@ namespace Folke.Wa
                 }
             }
 
-            foreach (var c in Assembly.GetEntryAssembly().DefinedTypes.Where(t => t.IsClass && !t.IsAbstract && typeof(IView).IsAssignableFrom(t)))
+            foreach (var c in assembly.DefinedTypes.Where(t => t.IsClass && !t.IsAbstract && typeof(IView).IsAssignableFrom(t)))
             {
                 var name = c.Name;
                 var suffix = name.IndexOf("View");
