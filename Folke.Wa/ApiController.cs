@@ -83,6 +83,20 @@ namespace Folke.Wa
             return null;
         }
 
+        public IActionResult<T> Unauthorized<T>(string message)
+        {
+            Context.Response.StatusCode = 401;
+            Context.Response.Write(message);
+            return null;
+        }
+
+        public IHttpActionResult Unauthorized(string message)
+        {
+            Context.Response.StatusCode = 401;
+            Context.Response.Write(message);
+            return null;
+        }
+
         public IActionResult<T> BadRequest<T>(ModelState modelState)
         {
             Context.Response.StatusCode = 400;
