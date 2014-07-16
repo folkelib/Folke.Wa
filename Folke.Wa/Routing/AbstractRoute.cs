@@ -123,6 +123,34 @@ namespace Folke.Wa.Routing
             }
         }
 
+        private class DoublePart : Part
+        {
+            public DoublePart()
+            {
+                type = typeof(double);
+            }
+
+            public override bool Match(string part)
+            {
+                double result;
+                if (!double.TryParse(part, out result))
+                    return false;
+                return true;
+            }
+
+            public override void Parse(string part, object[] parameters)
+            {
+                parameters[order] = double.Parse(part);
+            }
+
+            public override void Append(StringBuilder builder, object parameters)
+            {
+                var type = parameters.GetType();
+                var value = type.GetProperty(pattern).GetValue(parameters);
+                builder.Append((double)value);
+            }
+        }
+
         private class StringPart : Part
         {
             public StringPart()
@@ -222,6 +250,8 @@ namespace Folke.Wa.Routing
                     query[parameter.Name] = new StringPart { order = parameter.Position };
                 else if (parameter.ParameterType == typeof(bool))
                     query[parameter.Name] = new BoolPart { order = parameter.Position };
+                else if (parameter.ParameterType == typeof(double))
+                    query[parameter.Name] = new DoublePart { order = parameter.Position };
                 else
                     throw new Exception("Parameter type " + parameter.ParameterType + " unsupported");
 
