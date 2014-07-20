@@ -27,9 +27,11 @@ namespace Folke.Wa
         private Dictionary<string, bool> staticDirectory = new Dictionary<string, bool>();
         public Container Container { get; set; }
         public JsonSerializerSettings JsonSerializerSettings { get; set; }
+        public string Area { get; set; }
 
         public WaConfig()
         {
+            Area = "/";
         }
 
         public void Configure(Container container, params Assembly[] assemblies)
@@ -110,7 +112,14 @@ namespace Folke.Wa
             if (!routes.ContainsKey(context.Request.Method))
                 return new PathMatch { success = false };
 
-            var requestPath = context.Request.Path.Value.Substring(1);
+            var requestPath = context.Request.Path.Value;
+            if (requestPath + "/" == Area)
+                requestPath += "/";
+
+            if (requestPath.IndexOf(Area) != 0)
+                return new PathMatch { success = false };
+            requestPath = requestPath.Substring(Area.Length);
+            
             if (requestPath.EndsWith("/"))
                 requestPath = requestPath.TrimEnd('/');
             var urlPath = requestPath.Split(new []{'/'}, StringSplitOptions.RemoveEmptyEntries);
@@ -147,7 +156,7 @@ namespace Folke.Wa
 
         public string MapPath(string path)
         {
-            if (path[0] == '~')
+            if (path.IndexOf("~/") == 0)
                 return path.Substring(2);
             return path;
         }
@@ -163,8 +172,10 @@ namespace Folke.Wa
 			if (path.IndexOf("..") >= 0)
 				return false;
 				
-            if (path[0] == '/')
-                path = path.Substring(1);
+            if (path.IndexOf(Area) != 0)
+                return false;
+            path = path.Substring(Area.Length);
+            
             var slash = path.IndexOf('/');
             if (slash < 0)
                 return false;

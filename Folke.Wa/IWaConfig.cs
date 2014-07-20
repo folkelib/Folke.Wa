@@ -14,11 +14,20 @@ namespace Folke.Wa
 {
     public interface IWaConfig
     {
+        /// <summary>
+        /// Maps a virtual path to the file system
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
         string MapPath(string path);
 
         Folke.Wa.WaConfig.PathMatch Match(IOwinContext context);
         Task Run(IOwinContext context, Folke.Wa.WaConfig.PathMatch match);
         Container Container { get; set; }
+        /// <summary>
+        /// Must end with a / (default is /)
+        /// </summary>
+        string Area { get; set; }
 
         AbstractRoute GetRoute(string route);
         IView GetView(string name);
