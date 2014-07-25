@@ -176,6 +176,39 @@ namespace Folke.Wa.Routing
             }
         }
 
+        private class EnumPart : Part
+        {
+            public EnumPart(Type type)
+            {
+                this.type = type;
+            }
+
+            public override bool Match(string part)
+            {
+                try
+                {
+                    Enum.Parse(type, part);
+                    return true;
+                }
+                catch (Exception)
+                {
+                    return false;
+                }
+            }
+
+            public override void Parse(string part, object[] parameters)
+            {
+                parameters[order] = Enum.Parse(type, part);
+            }
+
+            public override void Append(StringBuilder builder, object parameters)
+            {
+                var type = parameters.GetType();
+                var value = type.GetProperty(pattern).GetValue(parameters);
+                builder.Append((long)value);
+            }
+        }
+
         private List<Part> parts = new List<Part>();
         private MethodInfo method;
         private ParameterInfo body;
@@ -252,6 +285,8 @@ namespace Folke.Wa.Routing
                     query[parameter.Name] = new BoolPart { order = parameter.Position };
                 else if (parameter.ParameterType == typeof(double))
                     query[parameter.Name] = new DoublePart { order = parameter.Position };
+                else if (parameter.ParameterType.IsEnum)
+                    query[parameter.Name] = new EnumPart(parameter.ParameterType) { order = parameter.Position };
                 else
                     throw new Exception("Parameter type " + parameter.ParameterType + " unsupported");
 
