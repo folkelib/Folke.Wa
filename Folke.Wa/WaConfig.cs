@@ -223,7 +223,7 @@ namespace Folke.Wa
                 if (!File.Exists(path))
                 {
                     context.Response.StatusCode = 404;
-                    context.Response.Write("File not found");
+                    context.Response.Write(string.Format("File {0} not found (request was {1}, area is {2})", path, context.Request.Path.Value, Area));
                     return true;
                 }
 
