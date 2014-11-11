@@ -137,10 +137,18 @@ namespace Folke.Wa
         {
             using (var executionContextScope = Container.BeginExecutionContextScope())
             {
-                var currentContext = Container.GetInstance<ICurrentContext>();
-                //TODO CurrentContextFactory ?
-                currentContext.Setup(context, this);
-                await match.path.Invoke(match.pathParts, currentContext);
+                try
+                {
+                    var currentContext = Container.GetInstance<ICurrentContext>();
+                    //TODO CurrentContextFactory ?
+                    currentContext.Setup(context, this);
+                    await match.path.Invoke(match.pathParts, currentContext);
+                }
+                catch(Exception e)
+                {
+                    Console.Error.Write(e.ToString());
+                    throw;
+                }
             }
         }
 

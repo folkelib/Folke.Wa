@@ -35,6 +35,7 @@ namespace Folke.Wa.Routing
             catch (Exception e)
             {
                 context.Response.StatusCode = 500;
+                context.Response.ContentType = "application/json; charset=utf-8";
                 context.Response.Write(JsonConvert.SerializeObject(new { message = e.Message, details = e.ToString() }, config.JsonSerializerSettings));
             }
             return Task.Delay(0);
