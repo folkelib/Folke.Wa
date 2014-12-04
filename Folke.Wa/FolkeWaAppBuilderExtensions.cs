@@ -16,10 +16,18 @@ namespace Folke.Wa
                 if (config.SendStaticContent(context))
                     return Task.Delay(0);
 
-                var match = config.Match(context);
-                if (!match.success)
+                try
+                {
+                    var match = config.Match(context);
+                    if (!match.success)
+                        return next();
+                    return config.Run(context, match);
+                }
+                catch (Exception e)
+                {
+                    Console.Write(e);
                     return next();
-                return config.Run(context, match);
+                }
             });
             return builder;
         }
