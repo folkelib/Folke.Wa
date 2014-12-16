@@ -61,6 +61,13 @@ namespace Folke.Wa
             return null;
         }
 
+        public ActionResult BadRequest(string message)
+        {
+            Context.Response.StatusCode = 400;
+            Context.Response.Write(message);
+            return null;
+        }
+
         public ActionResult Redirect(string uri)
         {
             Context.Response.Redirect(uri);
