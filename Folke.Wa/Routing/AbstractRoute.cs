@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -176,6 +177,32 @@ namespace Folke.Wa.Routing
             }
         }
 
+        private class DatePart : Part
+        {
+            public DatePart()
+            {
+                type = typeof(DateTime);
+            }
+
+            public override bool Match(string part)
+            {
+                DateTime result;
+                return DateTime.TryParse(part, null, DateTimeStyles.RoundtripKind, out result);
+            }
+
+            public override void Parse(string part, object[] parameters)
+            {
+                parameters[order] = DateTime.Parse(part, null, DateTimeStyles.RoundtripKind);
+            }
+
+            public override void Append(StringBuilder builder, object parameters)
+            {
+                var type = parameters.GetType();
+                var value = (DateTime)type.GetProperty(pattern).GetValue(parameters);
+                builder.Append(value.ToString("s", CultureInfo.InvariantCulture));
+            }
+        }
+
         private class EnumPart : Part
         {
             public EnumPart(Type type)
@@ -285,10 +312,12 @@ namespace Folke.Wa.Routing
                     query[parameter.Name] = new BoolPart { order = parameter.Position };
                 else if (parameter.ParameterType == typeof(double))
                     query[parameter.Name] = new DoublePart { order = parameter.Position };
+                else if (parameter.ParameterType == typeof(DateTime))
+                    query[parameter.Name] = new DatePart { order = parameter.Position };
                 else if (parameter.ParameterType.IsEnum)
                     query[parameter.Name] = new EnumPart(parameter.ParameterType) { order = parameter.Position };
                 else
-                    throw new Exception("Parameter type " + parameter.ParameterType + " unsupported");
+                    throw new Exception("Parameter type " + parameter.ParameterType + " unsupported in " + method.DeclaringType.FullName + "." + method.Name);
 
                 if (parameter.HasDefaultValue)
                 {
