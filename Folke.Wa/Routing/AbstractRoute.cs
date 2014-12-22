@@ -382,7 +382,15 @@ namespace Folke.Wa.Routing
         {
             var contentLength = int.Parse(context.Request.Headers["content-length"]);
             var bodyContent = new byte[contentLength];
-            context.Request.Body.Read(bodyContent, 0, contentLength);
+            var offset = 0;
+            var remaining = contentLength;
+            while (remaining > 0)
+            {
+                var read = context.Request.Body.Read(bodyContent, offset, remaining);
+                offset += read;
+                remaining -= read;
+            }
+
             var text = Encoding.UTF8.GetString(bodyContent);
             try
             {
