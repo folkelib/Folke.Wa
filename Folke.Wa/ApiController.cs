@@ -90,6 +90,20 @@ namespace Folke.Wa
             return null;
         }
 
+        public IActionResult<T> NotFound<T>()
+        {
+            Context.Response.StatusCode = 404;
+            Context.Response.Write("Not found");
+            return null;
+        }
+
+        public IHttpActionResult NotFound()
+        {
+            Context.Response.StatusCode = 404;
+            Context.Response.Write("Not found");
+            return null;
+        }
+
         public IHttpActionResult Unauthorized(string message)
         {
             Context.Response.StatusCode = 401;
