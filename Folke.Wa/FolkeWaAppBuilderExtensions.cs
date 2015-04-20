@@ -19,7 +19,7 @@ namespace Folke.Wa
                 try
                 {
                     var match = config.Match(context);
-                    if (!match.success)
+                    if (!match.Success)
                         return next();
                     return config.Run(context, match);
                 }

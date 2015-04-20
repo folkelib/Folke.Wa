@@ -1,4 +1,5 @@
-﻿using Microsoft.Owin;
+﻿using System.Threading;
+using Microsoft.Owin;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -350,7 +351,7 @@ namespace Folke.Wa.Routing
             return true;
         }
 
-        public abstract Task Invoke(string[] path, ICurrentContext context);
+        public abstract Task Invoke(string[] path, ICurrentContext context, CancellationToken cancellationToken);
 
         protected int NumberOfParameters
         {
@@ -378,7 +379,7 @@ namespace Folke.Wa.Routing
             }
         }
 
-        protected void FillJsonBody(ICurrentContext context, object[] parameters)
+        protected async Task FillJsonBody(ICurrentContext context, object[] parameters)
         {
             var contentLength = int.Parse(context.Request.Headers["content-length"]);
             var bodyContent = new byte[contentLength];
@@ -386,7 +387,7 @@ namespace Folke.Wa.Routing
             var remaining = contentLength;
             while (remaining > 0)
             {
-                var read = context.Request.Body.Read(bodyContent, offset, remaining);
+                var read = await context.Request.Body.ReadAsync(bodyContent, offset, remaining);
                 offset += read;
                 remaining -= read;
             }
@@ -423,6 +424,12 @@ namespace Folke.Wa.Routing
         {
             var obj = config.Container.GetInstance(method.DeclaringType);
             return method.Invoke(obj, parameters);
+        }
+
+        protected async Task<object> InvokeAsync(ICurrentContext context, object[] parameters)
+        {
+            var obj = config.Container.GetInstance(method.DeclaringType);
+            return await (Task<object>)method.Invoke(obj, parameters);
         }
 
         internal string CreateLink(object parameters)

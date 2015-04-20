@@ -1,23 +1,18 @@
-﻿using System.Threading;
-using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace Folke.Wa.Routing
 {
-    /// <summary>
-    /// A route to a method that returns an IHttpActionResult or an IActionResult
-    /// </summary>
-    public class HttpActionResultApiRoute : AbstractRoute
+    public class AsyncHttpActionResultApiRoute : AbstractRoute
     {
-        public HttpActionResultApiRoute(string pattern, MethodInfo methodInfo, WaConfig config)
-            : base(pattern, methodInfo, config)
+        public AsyncHttpActionResultApiRoute(string pattern, MethodInfo methodInfo, IWaConfig config) : base(pattern, methodInfo, config)
         {
-
         }
 
-        public override async Task Invoke(string[] path, ICurrentContext context, CancellationToken cancellationToken)
+        public async override Task Invoke(string[] path, ICurrentContext context, CancellationToken cancellationToken)
         {
             var parameters = new object[NumberOfParameters];
             FillPathParameters(path, parameters);
@@ -28,7 +23,7 @@ namespace Folke.Wa.Routing
 
             try
             {
-                var result = (IHttpActionResult)Invoke(context, parameters);
+                var result = (IHttpActionResult) await InvokeAsync(context, parameters);
                 await result.ExecuteAsync(context, cancellationToken);
             }
             catch (Exception e)

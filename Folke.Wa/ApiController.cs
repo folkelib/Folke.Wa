@@ -1,10 +1,5 @@
 ﻿using Microsoft.Owin;
-using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Folke.Wa
 {
@@ -17,142 +12,92 @@ namespace Folke.Wa
         private ModelState modelState;
         public ModelState ModelState
         {
-            get
-            {
-                if (modelState == null)
-                    modelState = new ModelState(Context.Model);
-                return modelState;
-            }
+            get { return modelState ?? (modelState = new ModelState(Context.Model)); }
         }
 
-        public ApiController(ICurrentContext context)
+        protected ApiController(ICurrentContext context)
         {
             Context = context;
         }
 
-        /*public IHttpActionResult Ok(object model)
+        public IHttpActionResult<T> Ok<T>(T model)
         {
-            Context.Response.ContentType = "application/json; charset=utf-8";
-            Context.Response.Write(JsonConvert.SerializeObject(model, Config.JsonSerializerSettings));
-            return null;
-        }*/
-
-        public IActionResult<T> Ok<T>(T model)
-        {
-            Context.Response.ContentType = "application/json; charset=utf-8";
-            Context.Response.Write(JsonConvert.SerializeObject(model, Config.JsonSerializerSettings));
-            return null;
+            return new JsonActionResult<T>(model, Config.JsonSerializerSettings);
         }
 
         public IHttpActionResult Ok()
         {
-            Context.Response.ContentType = "application/json; charset=utf-8";
-            Context.Response.Write("null");
-            return null;
+            return new JsonActionResult();
         }
 
         public IHttpActionResult Created(Uri uri, object model)
         {
-            Context.Response.StatusCode = 201;
-            Context.Response.ContentType = "application/json; charset=utf-8";
-            Context.Response.Headers["Location"] = uri.AbsolutePath;
-            Context.Response.Write(JsonConvert.SerializeObject(model, Config.JsonSerializerSettings));
-            return null;
+            return new JsonActionResult(model, Config.JsonSerializerSettings, 201, uri.AbsolutePath);
         }
 
-        protected IActionResult<T> Created<T>(string routeName, int id, T content)
+        protected IHttpActionResult<T> Created<T>(string routeName, int id, T content)
         {
-            Context.Response.StatusCode = 201;
-            Context.Response.ContentType = "application/json; charset=utf-8";
-            Context.Response.Headers["Location"] = new Uri(Link(routeName, new {id = id})).AbsolutePath;
-            Context.Response.Write(JsonConvert.SerializeObject(content, Config.JsonSerializerSettings));
-            return null;
+            return new JsonActionResult<T>(content, Config.JsonSerializerSettings, 201, new Uri(Link(routeName, new {id})).AbsolutePath);
         }
 
         public IHttpActionResult Unauthorized()
         {
-            Context.Response.StatusCode = 401;
-            Context.Response.Write("Unauthorized");
-            return null;
+            return new JsonActionResult(statusCode: 401);
         }
 
-        public IActionResult<T> Unauthorized<T>()
+        public IHttpActionResult<T> Unauthorized<T>()
         {
-            Context.Response.StatusCode = 401;
-            Context.Response.Write("Unauthorized");
-            return null;
+            return new JsonActionResult<T>(default(T), Config.JsonSerializerSettings, 401);
         }
 
-        public IActionResult<T> Unauthorized<T>(string message)
+        public IHttpActionResult<T> Unauthorized<T>(string message)
         {
-            Context.Response.StatusCode = 401;
-            Context.Response.Write(message);
-            return null;
+            return new JsonActionResult<string, T>(message, Config.JsonSerializerSettings, 401);
         }
 
-        public IActionResult<T> NotFound<T>()
+        public IHttpActionResult<T> NotFound<T>()
         {
-            Context.Response.StatusCode = 404;
-            Context.Response.Write("Not found");
-            return null;
+            return new JsonActionResult<string, T>("Not found", Config.JsonSerializerSettings, 404);
         }
 
         public IHttpActionResult NotFound()
         {
-            Context.Response.StatusCode = 404;
-            Context.Response.Write("Not found");
-            return null;
+            return new JsonActionResult("Not found", Config.JsonSerializerSettings, 404);
         }
 
         public IHttpActionResult Unauthorized(string message)
         {
-            Context.Response.StatusCode = 401;
-            Context.Response.Write(message);
-            return null;
+            return new JsonActionResult(message, Config.JsonSerializerSettings, 401);
         }
 
-        public IActionResult<T> BadRequest<T>(ModelState modelState)
+        public IHttpActionResult<T> BadRequest<T>(ModelState badModelState)
         {
-            Context.Response.StatusCode = 400;
-            Context.Response.ContentType = "application/json; charset=utf-8";
-            Context.Response.Write(JsonConvert.SerializeObject(new { modelState = modelState.Messages }, Config.JsonSerializerSettings));
-            return null;
+            return new JsonActionResult<object, T>(new { modelState = badModelState.Messages}, Config.JsonSerializerSettings, 400);
         }
 
-        public IHttpActionResult BadRequest(ModelState modelState)
+        public IHttpActionResult BadRequest(ModelState badModelState)
         {
-            Context.Response.StatusCode = 400;
-            Context.Response.ContentType = "application/json; charset=utf-8";
-            Context.Response.Write(JsonConvert.SerializeObject(new { modelState = modelState.Messages }, Config.JsonSerializerSettings));
-            return null;
+            return new JsonActionResult(new { modelState = badModelState.Messages }, Config.JsonSerializerSettings, 400);
         }
 
-        public IActionResult<T> BadRequest<T>()
+        public IHttpActionResult<T> BadRequest<T>()
         {
-            Context.Response.StatusCode = 400;
-            return null;
+            return new JsonActionResult<T>(default(T), Config.JsonSerializerSettings, 400);
         }
 
         public IHttpActionResult BadRequest()
         {
-            Context.Response.StatusCode = 400;
-            return null;
+            return new JsonActionResult(statusCode: 400);
         }
 
-        public IActionResult<T> BadRequest<T>(string message)
+        public IHttpActionResult<T> BadRequest<T>(string message)
         {
-            Context.Response.StatusCode = 400;
-            Context.Response.ContentType = "application/json; charset=utf-8";
-            Context.Response.Write(JsonConvert.SerializeObject(new { message = message }, Config.JsonSerializerSettings));
-            return null;
+            return new JsonActionResult<dynamic, T>(new {message }, Config.JsonSerializerSettings, 400);
         }
 
         public IHttpActionResult BadRequest(string message)
         {
-            Context.Response.StatusCode = 400;
-            Context.Response.ContentType = "application/json; charset=utf-8";
-            Context.Response.Write(JsonConvert.SerializeObject(new { message = message }, Config.JsonSerializerSettings));
-            return null;
+            return new JsonActionResult(new { message }, Config.JsonSerializerSettings, 400);
         }
 
         public string Link(string route, object parameters)

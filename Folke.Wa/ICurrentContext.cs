@@ -22,5 +22,7 @@ namespace Folke.Wa
         /// <param name="value">Its value</param>
         /// <param name="options">Options (only path and expires are implemented)</param>
         void SetCookie(string key, string value, CookieOptions options);
+
+        IOwinContext GetOwinContext();
     }
 }

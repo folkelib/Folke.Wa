@@ -31,41 +31,23 @@ namespace Folke.Wa
 
         public ActionResult View(IView view)
         {
-            Context.Response.ContentType = "text/html; charset=utf-8";
-            Context.Response.Write(view.Render(Context));
-            return null;
+            return new ActionResult(view.Render(Context), 200);
         }
 
-        public ActionResult View(string viewName, string controller)
-        {
-           /* var file = System.IO.File.ReadAllText("Views/" +  controller + "/" + view + ".cshtml");
-            file = Regex.Replace(file, @"@model\s+[\w\.]+\s*", "");*/
-            var view = Context.Config.GetView(viewName);
-            Context.Response.ContentType = "text/html; charset=utf-8";
-            Context.Response.Write(view.Render(Context));
-            return null;
-        }
 
         public ActionResult View(string view)
         {
-            var name = this.GetType().Name;
-            var end = name.IndexOf("Controller");
-            name = name.Substring(0, end);
-            return View(view, name);
+            return View(Context.Config.GetView(view));
         }
 
-        public ActionResult Json(object value)
+        public JsonActionResult Json(object value)
         {
-            Context.Response.ContentType = "application/json";
-            Context.Response.Write(JsonConvert.SerializeObject(value, Config.JsonSerializerSettings));
-            return null;
+            return new JsonActionResult(value, Config.JsonSerializerSettings);
         }
 
         public ActionResult BadRequest(string message)
         {
-            Context.Response.StatusCode = 400;
-            Context.Response.Write(message);
-            return null;
+            return new ActionResult(message, 400);
         }
 
         public ActionResult Redirect(string uri)

@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using System.Threading;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,21 +20,20 @@ namespace Folke.Wa.Routing
 
         }
 
-        public override Task Invoke(string[] path, ICurrentContext context)
+        public async override Task Invoke(string[] path, ICurrentContext context, CancellationToken cancellationToken)
         {
             var parameters = new object[NumberOfParameters];
             FillPathParameters(path, parameters);
 
             if (HasBody)
-                FillJsonBody(context, parameters);
+                await FillJsonBody(context, parameters);
             FillQueryParameters(context, parameters);
 
             try
             {
                 var ret = Invoke(context, parameters);
                 context.Response.ContentType = "application/json; charset=utf-8";
-                //if (ret != null)
-                context.Response.Write(JsonConvert.SerializeObject(ret, config.JsonSerializerSettings));
+                await context.Response.WriteAsync(JsonConvert.SerializeObject(ret, config.JsonSerializerSettings), cancellationToken);
             }
             catch (Exception e)
             {
@@ -41,7 +41,6 @@ namespace Folke.Wa.Routing
                 context.Response.ContentType = "application/json; charset=utf-8";
                 context.Response.Write(JsonConvert.SerializeObject(new { message = e.Message, details = e.ToString() }, config.JsonSerializerSettings));
             }
-            return Task.Delay(0);
         }
     }
 }

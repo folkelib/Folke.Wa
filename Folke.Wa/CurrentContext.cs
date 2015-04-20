@@ -39,6 +39,11 @@ namespace Folke.Wa
             }
         }
 
+        public IOwinContext GetOwinContext()
+        {
+            return context;
+        }
+
         public void SetCookie(string key, string value, CookieOptions options)
         {
             var text = string.Format("{0}={1}", key, value);

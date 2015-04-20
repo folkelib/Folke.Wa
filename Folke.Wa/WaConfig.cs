@@ -1,16 +1,14 @@
-﻿using Microsoft.Owin;
+﻿using System.Threading;
+using Microsoft.Owin;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using SimpleInjector;
 using SimpleInjector.Extensions.ExecutionContextScoping;
 using System.IO;
-using Newtonsoft.Json.Serialization;
 using System.Globalization;
 using Folke.Wa.Routing;
 
@@ -21,10 +19,10 @@ namespace Folke.Wa
     /// </summary>
     public class WaConfig : IWaConfig
     {
-        private Dictionary<string, List<AbstractRoute>> routes = new Dictionary<string, List<AbstractRoute>>();
-        private Dictionary<string, AbstractRoute> routesByName = new Dictionary<string, AbstractRoute>();
-        private Dictionary<string, IView> views = new Dictionary<string, IView>();
-        private Dictionary<string, bool> staticDirectory = new Dictionary<string, bool>();
+        private readonly Dictionary<string, List<AbstractRoute>> routes = new Dictionary<string, List<AbstractRoute>>();
+        private readonly Dictionary<string, AbstractRoute> routesByName = new Dictionary<string, AbstractRoute>();
+        private readonly Dictionary<string, IView> views = new Dictionary<string, IView>();
+        private readonly Dictionary<string, bool> staticDirectory = new Dictionary<string, bool>();
         public Container Container { get; set; }
         public JsonSerializerSettings JsonSerializerSettings { get; set; }
         public string Area { get; set; }
@@ -56,7 +54,7 @@ namespace Folke.Wa
                     if (routeAttribute == null)
                         continue;
                     var route = routeAttribute.Format ?? "";
-                    if (route.IndexOf("~") == 0)
+                    if (route.IndexOf("~", StringComparison.Ordinal) == 0)
                         route = route.Substring(1);
                     else if (route.Length > 0)
                         route = prefix.Name + "/" + route;
@@ -76,9 +74,19 @@ namespace Folke.Wa
                         routes.Add(methodName, new List<AbstractRoute>());
 
                     AbstractRoute newRoute;
-                    if (typeof(ActionResult).IsAssignableFrom(method.ReturnType))
-                        newRoute = new ActionResultRoute(route, method, this);
-                    else if (typeof(IHttpActionResult).IsAssignableFrom(method.ReturnType) || (method.ReturnType.IsGenericType && method.ReturnType.GetGenericTypeDefinition() == typeof(IActionResult<>)))
+                    if (method.ReturnType.IsGenericType && method.ReturnType.GetGenericTypeDefinition() == typeof(Task<>))
+                    {
+                        var innerType = method.ReturnType.GetGenericArguments()[0];
+                        if (typeof (IHttpActionResult).IsAssignableFrom(innerType))
+                        {
+                            newRoute = new AsyncHttpActionResultApiRoute(route, method, this);
+                        }
+                        else
+                        {
+                            throw new NotImplementedException("Task return type");
+                        }
+                    }
+                    else if (typeof(IHttpActionResult).IsAssignableFrom(method.ReturnType) || (method.ReturnType.IsGenericType && method.ReturnType.GetGenericTypeDefinition() == typeof(IHttpActionResult<>)))
                         newRoute = new HttpActionResultApiRoute(route, method, this);
                     else
                         newRoute = new BareApiRoute(route, method, this);
@@ -91,7 +99,7 @@ namespace Folke.Wa
             foreach (var c in assembly.DefinedTypes.Where(t => t.IsClass && !t.IsAbstract && typeof(IView).IsAssignableFrom(t)))
             {
                 var name = c.Name;
-                var suffix = name.IndexOf("View");
+                var suffix = name.IndexOf("View", StringComparison.Ordinal);
                 if (suffix > 0)
                     name = name.Substring(0, suffix);
                 var constructor = c.GetConstructor(Type.EmptyTypes);
@@ -102,22 +110,22 @@ namespace Folke.Wa
 
         public struct PathMatch
         {
-            public string[] pathParts;
-            public AbstractRoute path;
-            public bool success;
+            public string[] PathParts;
+            public AbstractRoute Path;
+            public bool Success;
         }
 
         public PathMatch Match(IOwinContext context)
         {
             if (!routes.ContainsKey(context.Request.Method))
-                return new PathMatch { success = false };
+                return new PathMatch { Success = false };
 
             var requestPath = context.Request.Path.Value;
             if (requestPath + "/" == Area)
                 requestPath += "/";
 
-            if (requestPath.IndexOf(Area) != 0)
-                return new PathMatch { success = false };
+            if (requestPath.IndexOf(Area, StringComparison.Ordinal) != 0)
+                return new PathMatch { Success = false };
             requestPath = requestPath.Substring(Area.Length);
             
             if (requestPath.EndsWith("/"))
@@ -127,22 +135,23 @@ namespace Folke.Wa
             {
                 if (path.Match(urlPath))
                 {
-                    return new PathMatch { success = true, path = path, pathParts = urlPath };
+                    return new PathMatch { Success = true, Path = path, PathParts = urlPath };
                 }
             }
-            return new PathMatch { success = false };
+            return new PathMatch { Success = false };
         }
 
         public async Task Run(IOwinContext context, PathMatch match)
         {
-            using (var executionContextScope = Container.BeginExecutionContextScope())
+            using (Container.BeginExecutionContextScope())
             {
                 try
                 {
+                    var cancellationToken = new CancellationToken();
                     var currentContext = Container.GetInstance<ICurrentContext>();
                     //TODO CurrentContextFactory ?
                     currentContext.Setup(context, this);
-                    await match.path.Invoke(match.pathParts, currentContext);
+                    await match.Path.Invoke(match.PathParts, currentContext, cancellationToken);
                 }
                 catch(Exception e)
                 {
@@ -164,7 +173,7 @@ namespace Folke.Wa
 
         public string MapPath(string path)
         {
-            if (path.IndexOf("~/") == 0)
+            if (path.IndexOf("~/", StringComparison.Ordinal) == 0)
                 return path.Substring(2);
             return path;
         }
@@ -177,10 +186,10 @@ namespace Folke.Wa
         public bool SendStaticContent(IOwinContext context)
         {
             var path = context.Request.Path.Value;
-			if (path.IndexOf("..") >= 0)
+			if (path.IndexOf("..", StringComparison.Ordinal) >= 0)
 				return false;
 				
-            if (path.IndexOf(Area) != 0)
+            if (path.IndexOf(Area, StringComparison.Ordinal) != 0)
                 return false;
             path = path.Substring(Area.Length);
             
@@ -263,11 +272,11 @@ namespace Folke.Wa
 
         private class Session
         {
-            public DateTime expires;
-            public Dictionary<string, object> content;
+            public DateTime Expires;
+            public Dictionary<string, object> Content;
         }
 
-        private IDictionary<string, Session> sessions = new Dictionary<string, Session>();
+        private readonly IDictionary<string, Session> sessions = new Dictionary<string, Session>();
 
         public Dictionary<string, object> GetSession(ICurrentContext context)
         {
@@ -282,7 +291,7 @@ namespace Folke.Wa
                     if (sessionId == null || !sessions.ContainsKey(sessionId))
                     {
                         //Prune expired sessions
-                        foreach (var key in sessions.Where(s => s.Value.expires < now).Select(s => s.Key).ToList())
+                        foreach (var key in sessions.Where(s => s.Value.Expires < now).Select(s => s.Key).ToList())
                         {
                             sessions.Remove(key);
                         }
@@ -295,7 +304,7 @@ namespace Folke.Wa
                             sessionId = Convert.ToBase64String(generate);
                         }
                         while (sessions.ContainsKey(sessionId));
-                        session = new Session { content = new Dictionary<string, object>() };
+                        session = new Session { Content = new Dictionary<string, object>() };
                         sessions[sessionId] = session;
                     }
                 }
@@ -304,8 +313,8 @@ namespace Folke.Wa
             context.SetCookie("session", sessionId, new CookieOptions { Expires = expires });
             
             session = sessions[sessionId];
-            session.expires = expires;
-            return session.content;
+            session.Expires = expires;
+            return session.Content;
         }
     }
 }
