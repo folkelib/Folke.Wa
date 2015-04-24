@@ -6,9 +6,10 @@ using Newtonsoft.Json;
 
 namespace Folke.Wa.Routing
 {
-    public class AsyncHttpActionResultApiRoute : AbstractRoute
+    public class AsyncHttpActionResultApiRoute<T> : AbstractRoute where T : IHttpActionResult
     {
-        public AsyncHttpActionResultApiRoute(string pattern, MethodInfo methodInfo, IWaConfig config) : base(pattern, methodInfo, config)
+        public AsyncHttpActionResultApiRoute(string pattern, MethodInfo methodInfo, IWaConfig config)
+            : base(pattern, methodInfo, config)
         {
         }
 
@@ -23,7 +24,7 @@ namespace Folke.Wa.Routing
 
             try
             {
-                var result = (IHttpActionResult) await InvokeAsync(context, parameters);
+                var result = await InvokeAsync<T>(context, parameters);
                 await result.ExecuteAsync(context, cancellationToken);
             }
             catch (Exception e)
@@ -32,6 +33,13 @@ namespace Folke.Wa.Routing
                 context.Response.ContentType = "application/json; charset=utf-8";
                 context.Response.Write(JsonConvert.SerializeObject(new { message = e.Message, details = e.ToString() }, config.JsonSerializerSettings));
             }
+        }
+    }
+
+    public class AsyncHttpActionResultApiRoute : AsyncHttpActionResultApiRoute<IHttpActionResult>
+    {
+        public AsyncHttpActionResultApiRoute(string pattern, MethodInfo methodInfo, IWaConfig config) : base(pattern, methodInfo, config)
+        {
         }
     }
 }

@@ -426,10 +426,10 @@ namespace Folke.Wa.Routing
             return method.Invoke(obj, parameters);
         }
 
-        protected async Task<object> InvokeAsync(ICurrentContext context, object[] parameters)
+        protected async Task<T> InvokeAsync<T>(ICurrentContext context, object[] parameters)
         {
             var obj = config.Container.GetInstance(method.DeclaringType);
-            return await (Task<object>)method.Invoke(obj, parameters);
+            return await (Task<T>)method.Invoke(obj, parameters);
         }
 
         internal string CreateLink(object parameters)

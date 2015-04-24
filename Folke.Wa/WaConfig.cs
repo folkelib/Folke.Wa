@@ -77,9 +77,23 @@ namespace Folke.Wa
                     if (method.ReturnType.IsGenericType && method.ReturnType.GetGenericTypeDefinition() == typeof(Task<>))
                     {
                         var innerType = method.ReturnType.GetGenericArguments()[0];
-                        if (typeof (IHttpActionResult).IsAssignableFrom(innerType))
+                        if (innerType == typeof (IHttpActionResult))
                         {
                             newRoute = new AsyncHttpActionResultApiRoute(route, method, this);
+                        }
+                        else if (typeof (IHttpActionResult).IsAssignableFrom(innerType))
+                        {
+                            // TODO not very nice. Need JIT?
+                            var constructorInfo = typeof (AsyncHttpActionResultApiRoute<>).MakeGenericType(innerType)
+                                .GetConstructor(new[] {route.GetType(), method.GetType(), this.GetType()});
+                            if (constructorInfo != null)
+                                newRoute = (AbstractRoute)
+                                    constructorInfo
+                                        .Invoke(new object[] {route, method, this});
+                            else
+                            {
+                                throw new Exception("Constructor not found");
+                            }
                         }
                         else
                         {
@@ -149,7 +163,6 @@ namespace Folke.Wa
                 {
                     var cancellationToken = new CancellationToken();
                     var currentContext = Container.GetInstance<ICurrentContext>();
-                    //TODO CurrentContextFactory ?
                     currentContext.Setup(context, this);
                     await match.Path.Invoke(match.PathParts, currentContext, cancellationToken);
                 }
