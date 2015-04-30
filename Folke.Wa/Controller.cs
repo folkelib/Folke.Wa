@@ -36,8 +36,7 @@ namespace Folke.Wa
         {
             return new ActionResult(view.Render(Context), 200);
         }
-
-
+        
         public ActionResult View(string view)
         {
             return View(Context.Config.GetView(view));
@@ -53,21 +52,14 @@ namespace Folke.Wa
             return new ActionResult(message, 400);
         }
 
-        public ActionResult Redirect(string uri)
+        public HttpRedirectResult Redirect(string uri)
         {
-            Context.Response.Redirect(uri);
-            return null;
+            return new HttpRedirectResult(uri);
         }
 
-        public ActionResult File(string path, string contentType)
+        public FileActionResult File(string path, string contentType)
         {
-            var file = System.IO.File.ReadAllBytes(path);
-            Context.Response.ContentType = contentType;
-            Context.Response.Headers["Last-Modified"] = System.IO.File.GetLastWriteTimeUtc(path).ToString("R");
-            Context.Response.Headers["Cache-Control"] = "max-age=86400";
-            Context.Response.Expires = DateTimeOffset.Now.AddDays(7);
-            Context.Response.Write(file);
-            return null;
+            return new FileActionResult(path, contentType);
         }
 
 

@@ -263,7 +263,7 @@ namespace Folke.Wa.Routing
                         throw new Exception("part must end with }");
                     var pair = part.Substring(1, part.Length - 2).Split(new[] { ':' });
                     Part newPart;
-                    if (pair.Length == 2)
+                    /*if (pair.Length == 2)
                     {
                         switch (pair[1])
                         {
@@ -278,7 +278,7 @@ namespace Folke.Wa.Routing
                         }
                     }
                     else
-                   { 
+                    { 
                         newPart = new StringPart();
                     }
                     newPart.pattern = pair[0];
@@ -286,8 +286,40 @@ namespace Folke.Wa.Routing
                     {
                         newPart.pattern = newPart.pattern.Substring(0, newPart.pattern.Length - 1);
                         newPart.optional = true;
+                    }*/
+                    string partName = pair[0];
+                    bool optional = false;
+                    if (partName[partName.Length - 1] == '?')
+                    {
+                        partName = partName.Substring(0, partName.Length - 1);
+                        optional = true;
                     }
-                    var parameter = methodInfo.GetParameters().Where(p => p.Name == newPart.pattern && p.ParameterType == newPart.type).Single();
+
+                    var parameter = methodInfo.GetParameters().SingleOrDefault(p => p.Name == partName);
+                    if (parameter == null)
+                        throw new Exception(string.Format("method {0} parameter {1} cannot be found (from pattern {2})", methodInfo.Name, partName, pattern));
+                    if (parameter.ParameterType.IsEnum)
+                    {
+                        newPart = new EnumPart(parameter.ParameterType);
+                    }
+                    else if (parameter.ParameterType == typeof (string))
+                    {
+                        newPart = new StringPart();
+                    }
+                    else if (parameter.ParameterType == typeof (long))
+                    {
+                        newPart = new LongPart();
+                    }
+                    else if (parameter.ParameterType == typeof (int))
+                    {
+                        newPart = new IntPart();
+                    }
+                    else
+                    {
+                        throw new Exception("Unsupported uri part parameter type " + parameter.ParameterType.Name);
+                    }
+
+                    newPart.optional = optional;
                     newPart.order = parameter.Position;
                     parts.Add(newPart);
                 }
