@@ -160,7 +160,6 @@ namespace Folke.Wa
             var dash = Encoding.ASCII.GetBytes("-")[0];
             boundaryMarker[0] = dash;
             boundaryMarker[1] = dash;
-            var body = request.Body;
             var bodyLength = int.Parse(request.Headers["content-length"]);
             var bytes = new byte[bodyLength];
             int offset = 0;

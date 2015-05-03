@@ -318,7 +318,7 @@ namespace Folke.Wa.Routing
                     {
                         throw new Exception("Unsupported uri part parameter type " + parameter.ParameterType.Name);
                     }
-
+                    newPart.pattern = partName;
                     newPart.optional = optional;
                     newPart.order = parameter.Position;
                     parts.Add(newPart);
