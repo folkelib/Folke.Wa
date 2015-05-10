@@ -71,6 +71,7 @@
     <Compile Include="JsonActionResult.cs" />
     <Compile Include="JsonAttribute.cs" />
     <Compile Include="HttpRedirectResult.cs" />
+    <Compile Include="ReturnTypeAttribute.cs" />
     <Compile Include="Routing\AbstractRoute.cs" />
     <Compile Include="ActionResult.cs" />
     <Compile Include="ApiController.cs" />
