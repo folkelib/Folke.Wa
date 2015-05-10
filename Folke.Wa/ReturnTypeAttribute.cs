@@ -2,7 +2,7 @@
 
 namespace Folke.Wa
 {
-    public class ReturnTypeAttribute
+    public class ReturnTypeAttribute : Attribute
     {
         public Type ReturnType { get; set; }
 
