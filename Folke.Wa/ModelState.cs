@@ -18,6 +18,7 @@ namespace Folke.Wa
         public ModelState(object model)
         {
             IsValid = true;
+            if (model == null) return;
             var type = model.GetType();
             var validationContext = new ValidationContext(model);
             foreach (var propertyInfo in type.GetProperties())
