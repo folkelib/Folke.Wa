@@ -11,26 +11,26 @@ namespace Folke.Wa
     /// <typeparam name="TU"></typeparam>
     public class JsonActionResult<T, TU> : IHttpActionResult<TU>
     {
-        private readonly T model;
+        public T Model { get; }
         private readonly JsonSerializerSettings jsonSerializerSettings;
-        private readonly int statusCode;
-        private readonly string location;
+        public int StatusCode { get; }
+        public string Location { get; }
 
         public JsonActionResult(T model, JsonSerializerSettings jsonSerializerSettings, int statusCode = 200, string location = null)
         {
-            this.model = model;
+            this.Model = model;
             this.jsonSerializerSettings = jsonSerializerSettings;
-            this.statusCode = statusCode;
-            this.location = location;
+            this.StatusCode = statusCode;
+            this.Location = location;
         }
 
         public async Task ExecuteAsync(ICurrentContext currentContext, CancellationToken cancellationToken)
         {
-            if (location != null)
-                currentContext.Response.Headers["Location"] = location;
-            currentContext.Response.StatusCode = statusCode;
+            if (Location != null)
+                currentContext.Response.Headers["Location"] = Location;
+            currentContext.Response.StatusCode = StatusCode;
             currentContext.Response.ContentType = "application/json; charset=utf-8";
-            await currentContext.Response.WriteAsync(JsonConvert.SerializeObject(model, jsonSerializerSettings), cancellationToken);
+            await currentContext.Response.WriteAsync(JsonConvert.SerializeObject(Model, jsonSerializerSettings), cancellationToken);
         }
     }
 
@@ -43,26 +43,26 @@ namespace Folke.Wa
 
     public class JsonActionResult : IHttpActionResult
     {
-        private readonly object model;
+        public object Model { get; }
         private readonly JsonSerializerSettings jsonSerializerSettings;
-        private readonly int statusCode;
-        private readonly string location;
+        public int StatusCode { get; }
+        public string Location { get; }
 
         public JsonActionResult(object model = null, JsonSerializerSettings jsonSerializerSettings = null, int statusCode = 200, string location = null)
         {
-            this.model = model;
+            this.Model = model;
             this.jsonSerializerSettings = jsonSerializerSettings;
-            this.statusCode = statusCode;
-            this.location = location;
+            this.StatusCode = statusCode;
+            this.Location = location;
         }
 
         public async Task ExecuteAsync(ICurrentContext currentContext, CancellationToken cancellationToken)
         {
-            if (location != null)
-                currentContext.Response.Headers["Location"] = location;
-            currentContext.Response.StatusCode = statusCode;
+            if (Location != null)
+                currentContext.Response.Headers["Location"] = Location;
+            currentContext.Response.StatusCode = StatusCode;
             currentContext.Response.ContentType = "application/json; charset=utf-8";
-            await currentContext.Response.WriteAsync(model == null? "null" : JsonConvert.SerializeObject(model, jsonSerializerSettings), cancellationToken);
+            await currentContext.Response.WriteAsync(Model == null? "null" : JsonConvert.SerializeObject(Model, jsonSerializerSettings), cancellationToken);
         }
     }
 }
