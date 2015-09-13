@@ -1,15 +1,14 @@
 ﻿using System;
-using Moq;
-using NUnit.Framework;
 using Folke.Wa.Routing;
+using Moq;
+using Xunit;
 
 namespace Folke.Wa.Test.Routing
 {
-    [TestFixture]
     public class TestBareApiRoute
     {
-        private Type testControllerType;
-        private Mock<IWaConfig> configMock;
+        private readonly Type testControllerType;
+        private readonly Mock<IWaConfig> configMock;
 
         private class TestController
         {
@@ -19,34 +18,28 @@ namespace Folke.Wa.Test.Routing
             }
         }
 
-        [SetUp]
-        public void Initialize()
+        public TestBareApiRoute()
         {
             configMock = new Mock<IWaConfig>();
             testControllerType = typeof(TestController);
         }
-
-        [TearDown]
-        public void Cleanup()
-        {
-        }
-
-        [Test]
+        
+        [Fact]
         public void TestTextMethodMatchSuccess()
         {
             var textMethod = testControllerType.GetMethod("Text");
             var route = new BareApiRoute("test/{text}", textMethod, configMock.Object);
 
-            Assert.IsTrue(route.Match(new[] { "test", "toto" }), "route match");
+            Assert.True(route.Match(new[] { "test", "toto" }), "route match");
         }
 
-        [Test]
+        [Fact]
         public void TestTextMethodMatchFail()
         {
             var textMethod = testControllerType.GetMethod("Text");
             var route = new BareApiRoute("test/{text}/az", textMethod, configMock.Object);
 
-            Assert.IsFalse(route.Match(new[] { "test", "toto" }), "route match");
+            Assert.False(route.Match(new[] { "test", "toto" }), "route match");
         }
     }
 }

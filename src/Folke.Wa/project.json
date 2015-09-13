@@ -1,0 +1,31 @@
+{
+  "version": "1.0.1-*",
+  "authors": [
+    "Sidoine De Wispelaere"
+  ],
+  "dependencies": {
+    "Newtonsoft.Json": "7.0.1",
+    "SimpleInjector": "3.0.5",
+    "SimpleInjector.Extensions.ExecutionContextScoping": "3.0.5",
+    "xunit": "2.0.0",
+    "Microsoft.Owin": "3.0.1",
+    "Owin": "1.0.0"
+  },
+  "description": "A lightweight alternative to MVC6",
+  "frameworks": {
+    "dnx451": {
+      "frameworkAssemblies": {
+        "System.ComponentModel.DataAnnotations": "4.0.0.0"
+      },
+      "dependencies": {
+      }
+    },
+    "net45": {
+      "frameworkAssemblies": {
+        "System.ComponentModel.DataAnnotations": "4.0.0.0" 
+      },
+      "dependencies": {
+      }
+    }
+  }
+}

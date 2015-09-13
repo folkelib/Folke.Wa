@@ -1,14 +1,8 @@
-﻿using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
+using Xunit;
 
 namespace Folke.Wa.Test
 {
-    [TestFixture]
     public class TestModelState
     {
         private class TestClass
@@ -27,24 +21,24 @@ namespace Folke.Wa.Test
             public string PasswordConfirm { get; set; }
         }
 
-        [Test]
+        [Fact]
         public void TestIsValidTrue()
         {
             var test = new TestClass { Required = "Required", Email = "a@a.com", Nickname = "azrt", Password = "pass", PasswordConfirm = "pass" };
             var modelState = new ModelState(test);
-            Assert.IsTrue(modelState.IsValid);
+            Assert.True(modelState.IsValid);
         }
 
-        [Test]
+        [Fact]
         public void TestIsValidFalse()
         {
             var test = new TestClass { Required = null, Email = "aa.com", Nickname = "aa", Password = "pass", PasswordConfirm = "passs" };
             var modelState = new ModelState(test);
-            Assert.IsFalse(modelState.IsValid);
-            Assert.AreEqual(modelState.Messages["Required"].Count, 1);
-            Assert.AreEqual(modelState.Messages["Email"].Count, 1);
-            Assert.AreEqual(modelState.Messages["Nickname"].Count, 1);
-            Assert.AreEqual(modelState.Messages["PasswordConfirm"].Count, 1);
+            Assert.False(modelState.IsValid);
+            Assert.Equal(modelState.Messages["Required"].Count, 1);
+            Assert.Equal(modelState.Messages["Email"].Count, 1);
+            Assert.Equal(modelState.Messages["Nickname"].Count, 1);
+            Assert.Equal(modelState.Messages["PasswordConfirm"].Count, 1);
         }
     }
 }

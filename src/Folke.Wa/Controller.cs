@@ -1,36 +1,27 @@
-﻿using Microsoft.Owin;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
+using Microsoft.Owin;
 
 namespace Folke.Wa
 {
     public abstract class Controller : IController
     {
         private ModelState modelState;
-        public ModelState ModelState
-        {
-            get { return modelState ?? (modelState = new ModelState(Context.Model)); }
-        }
+        public ModelState ModelState => modelState ?? (modelState = new ModelState(Context.Model));
 
         public ICurrentContext Context { get; set; }
-        public IWaConfig Config { get { return Context.Config; } }
-        public Dictionary<string, object> Session { get { return Context.Session; } }
+        public IWaConfig Config => Context.Config;
+        public Dictionary<string, object> Session => Context.Session;
 
         protected Controller(ICurrentContext context)
         {
             Context = context;
         }
 
-        public IOwinRequest Request
-        {
-            get
-            {
-                return Context.Request;
-            }
-        }
+        public IOwinRequest Request => Context.Request;
 
         public ActionResult View(IView view)
         {
